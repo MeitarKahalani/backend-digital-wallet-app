@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const NotificationService = require('./services/notificationService');
+const NotificationService = require('../services/notificationService');
 
 const notificationService = new NotificationService();
 // Notification Service Endpoints

@@ -1,4 +1,5 @@
 const { MongoClient, ObjectId } = require('mongodb');
+const NotificationService = require('../services/notificationService');
 
 class TransactionService {
   constructor() {
@@ -20,9 +21,11 @@ class TransactionService {
       senderId: ObjectId(senderId),
       receiverId: ObjectId(receiverId),
       amount: amount,
-      status: 'pending' // You can define various statuses (pending, completed, rejected)
+      status: 'pending' // various statuses (pending, completed, rejected)
     };
     const result = await this.collection.insertOne(transaction);
+    //notificate receiver/sender about the transaction
+    await this.notificationService.sendNotification(receiverId, `You've received ${amount} dollars.`);
     return result.ops[0];
   }
 
