@@ -15,16 +15,17 @@ class UserService {
   }
 
   async createUser(userData) {
-    // Insert new user into the database
-    // Example: await this.collection.insertOne(userData);
+    const result = await this.collection.insertOne(userData);
+    return result.ops[0];
   }
 
   async getUserById(userId) {
-    // Retrieve user information by ID from the database
-    // Example: return await this.collection.findOne({ _id: userId });
+    return await this.collection.findOne({ _id: ObjectId(userId) });
   }
 
-  // Other functions for user management...
+  async updateUserBalance(userId, newBalance) {
+    await this.collection.updateOne({ _id: ObjectId(userId) }, { $set: { balance: newBalance } });
+  }
 }
 
 module.exports = UserService;
