@@ -41,8 +41,8 @@ class UserService {
         username: userData.username,
         email: userData.email,
         wallet: userData.wallet,
-        createdAt: currentTime,
-        updatedAt: currentTime,
+        createdAt: currentTime.toLocaleString(),
+        updatedAt: currentTime.toLocaleString(),
         transactions: [], // Initializing transactions array for the new user
         notifications: []// Initializing notifications array for the new user
       };

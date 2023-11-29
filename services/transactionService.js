@@ -57,7 +57,7 @@ class TransactionService {
   }
 
 
-  async updateSenderAndReceiverBalances(senderId, receiverId, amount) {
+  async updateSenderAndReceiverBalances(senderId, receiverId, amount, newTransactionId) {
     try {
       const sender = await this.userService.getUserById(senderId);
       const receiver = await this.userService.getUserById(receiverId);
@@ -68,9 +68,34 @@ class TransactionService {
       }
 
       console.log(sender.wallet.balance - amount,receiver.wallet.balance + amount)
-      const updatedSender = await this.userService.updateUserBalance(sender.userid, sender.wallet.balance - amount);
-      const updatedReceiver = await this.userService.updateUserBalance(receiver.userid, receiver.wallet.balance + amount);
-
+      // const updatedSender = await this.userService.updateUserBalance(sender.userid, sender.wallet.balance - amount);
+      // const updatedReceiver = await this.userService.updateUserBalance(receiver.userid, receiver.wallet.balance + amount);
+      const senderTransaction = {
+        transactionId: newTransactionId, // Generate a transaction ID
+        type: 'debit',
+        amount: amount,
+        date: new Date().toLocaleString() // Date of the transaction
+      };
+  
+      const receiverTransaction = {
+        transactionId: newTransactionId, // Generate a transaction ID
+        type: 'credit',
+        amount: amount,
+        date: new Date().toLocaleString() // Date of the transaction
+      };
+  
+      const updatedSender = await this.userService.updateUserBalance(
+        sender.userid,
+        sender.wallet.balance - amount,
+        senderTransaction
+      );
+  
+      const updatedReceiver = await this.userService.updateUserBalance(
+        receiver.userid,
+        receiver.wallet.balance + amount,
+        receiverTransaction
+      );
+  
       return { updatedSender, updatedReceiver };
     } catch (error) {
       console.error('Error updating balances:', error.message);
