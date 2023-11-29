@@ -13,25 +13,31 @@ class TransactionService {
   }
 
   async connect() {
-    await this.client.connect();
-    this.db = this.client.db('digitalWalletDB');
-    this.collection = this.db.collection('transactions');
+    try {
+      await this.client.connect();
+      console.log("connected to MongoDB")
+      this.db = this.client.db('digitalWalletDB');
+      this.collection = this.db.collection('transactions');
+    } catch (error) {
+      console.error('Failed to connect to MongoDB:', error.message);
+      throw new Error('Failed to connect to MongoDB');
+    }
   }
 
   async initiateTransaction(senderId, receiverId, amount) {
     try {
       const transaction = {
-        senderId: ObjectId(senderId),
-        receiverId: ObjectId(receiverId),
+        senderId: parseInt(senderId, 10),
+        receiverId: parseInt(receiverId, 10),
         amount: amount,
         status: 'pending' // various statuses (pending, completed, rejected)
       };
-      const result = await this.collection.insertOne(transaction);
-
-      // Notifying receiver about the transaction
-      await this.notificationService.sendNotification(receiverId, `You've received ${amount} dollars.`);
-
-      return result.ops[0];
+      // Initiate the transaction
+      const newTransaction = await this.collection.insertOne(transaction);
+      console.log(newTransaction);
+      console.log(newTransaction.insertedId);
+      // await this.notificationService.sendNotification(receiverId, `You've received ${amount} dollars.`);
+      return newTransaction.insertedId;
     } catch (error) {
       console.error('Error initiating transaction:', error.message);
       throw new Error('Failed to initiate transaction');
@@ -40,25 +46,30 @@ class TransactionService {
 
   async processTransaction(transactionId) {
     try {
-      // Update the status of the transaction to 'completed'
-      await this.collection.updateOne({ _id: ObjectId(transactionId) }, { $set: { status: 'completed' } });
+      await this.collection.updateOne(
+        { _id: transactionId },
+        { $set: { status: 'completed' } }
+      );
     } catch (error) {
       console.error('Error processing transaction:', error.message);
       throw new Error('Failed to process transaction');
     }
   }
 
+
   async updateSenderAndReceiverBalances(senderId, receiverId, amount) {
     try {
       const sender = await this.userService.getUserById(senderId);
       const receiver = await this.userService.getUserById(receiverId);
 
+      // console.log(sender,receiver);
       if (!sender || !receiver) {
         throw new Error('Sender or Receiver not found');
       }
 
-      const updatedSender = await this.userService.updateUserBalance(senderId, sender.balance - amount);
-      const updatedReceiver = await this.userService.updateUserBalance(receiverId, receiver.balance + amount);
+      console.log(sender.wallet.balance - amount,receiver.wallet.balance + amount)
+      const updatedSender = await this.userService.updateUserBalance(sender.userid, sender.wallet.balance - amount);
+      const updatedReceiver = await this.userService.updateUserBalance(receiver.userid, receiver.wallet.balance + amount);
 
       return { updatedSender, updatedReceiver };
     } catch (error) {
