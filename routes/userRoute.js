@@ -10,9 +10,7 @@ router.post('', async (req, res) => {
       throw new Error('Request body is empty');
     }
     const userData = req.body;
-    console.log('User created:1', 1);
     const createdUser = await userService.createUser(userData);
-    console.log('User created:2', createdUser);
     res.json(createdUser);
   } catch (error) {
     console.error('Error creating user:', error.message);

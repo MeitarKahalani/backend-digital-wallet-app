@@ -7,19 +7,19 @@ router.post('', async (req, res) => {
     try {
         const { senderId, receiverId, amount } = req.body;
         // console.log(senderId, receiverId, amount);
-        const newTransaction = await transactionService.initiateTransaction(senderId, receiverId, amount);
+        const newTransactionId = await transactionService.initiateTransaction(senderId, receiverId, amount);
         // Updating sender and receiver balances
-        const updatedBalances = await transactionService.updateSenderAndReceiverBalances(senderId, receiverId, amount);
+        const updatedBalances = await transactionService.updateSenderAndReceiverBalances(senderId, receiverId, amount, newTransactionId);
         // Processing the transaction (updating status to 'completed')
-        console.log("newTransaction", newTransaction._id);
-        await transactionService.processTransaction(newTransaction._id);
+        console.log("newTransaction", newTransactionId);
+        await transactionService.processTransaction(newTransactionId);
         // Notifying receiver about the transaction
         console.log('Sender balance updated:', updatedBalances.updatedSender);
         console.log('Receiver balance updated:', updatedBalances.updatedReceiver);
 
-        res.json(newTransaction);
+        res.json({ message: 'Transaction processed successfully' });
     } catch (error) {
-        console.error('Error in performing transaction:', error.message);
+        console.error('Error performing transaction:', error.message);
         res.status(500).json({ error: 'Failed to perform transaction' });
     }
 });
