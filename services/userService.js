@@ -20,57 +20,102 @@ class UserService {
     }
   }
 
+  // async createUser(userData) {
+  //   try {  
+  //     console.log(`inside createUser for userD ${userData}`)
+  //     const result = await this.collection.insertOne(userData);
+  //     return result;
+  //     // return;
+  //   } catch (error) {
+  //     console.error('Error inserting user:', error.message);
+  //     throw new Error('Failed to create user');
+  //   }
+  // }
+
   async createUser(userData) {
-    try {  
-      console.log(`inside createUser for userD ${userData}`)
-      const result = await this.collection.insertOne(userData);
-      return result;
-      // return;
+    try {
+      const currentTime = new Date();
+
+      const newUser = {
+        userid: userData.userid,
+        username: userData.username,
+        email: userData.email,
+        wallet: userData.wallet,
+        createdAt: currentTime,
+        updatedAt: currentTime,
+        transactions: [], // Initializing transactions array for the new user
+        notifications: []// Initializing notifications array for the new user
+      };
+
+      const newUserUpdate = await this.collection.insertOne(newUser);
+      const user = await this.collection.findOne({
+        _id: newUserUpdate.insertedId
+      });
+      return user;
+
     } catch (error) {
       console.error('Error inserting user:', error.message);
       throw new Error('Failed to create user');
     }
   }
-  
-  async getUserById(userId) {
-    const client = new MongoClient('mongodb://localhost:27017');
-  
-    try {
-      // await client.connect();
-      // console.log("connected to MongoDB from getuser ", parseInt(userId, 10))
-      const db = client.db('digitalWalletDB'); 
-      const userIdAsInt = parseInt(userId, 10);
 
-      const user = await db.collection('users').findOne({ userid:userIdAsInt});
+  async getUserById(userId) {
+    try {
+      const userIdAsInt = parseInt(userId, 10);
+      const user = await this.collection.findOne({ userid: userIdAsInt });
       return user;
     } catch (error) {
       console.error('Error finding user:', error);
-    } finally {
-      await client.close();
+      throw new Error('Failed to find user');
     }
   }
 
-  async updateUserBalance(userId, newBalance) {
+  async updateUserBalance(userId, newBalance, transactionDetails) {
     try {
-      const userIdAsInt = parseInt(userId, 10);
       const updatedUser = await this.collection.findOneAndUpdate(
-        { userid: userIdAsInt },
-        { $set: { balance: newBalance } },
-        { returnDocument: 'after' } // Returns the updated document
+        { userid: userId },
+        {
+          $set: { 'wallet.balance': newBalance },
+          $push: { transactions: transactionDetails } // Log transaction to user's history
+        },
+        { returnDocument: 'after' }
       );
-  
-      if (!updatedUser.value) {
-        console.error('User not found');
+
+      if (!updatedUser) {
+        console.error(`User with ID ${userId} not found`);
         throw new Error('User not found');
       }
-  
-      return updatedUser.value;
+
+      return updatedUser;
     } catch (error) {
       console.error('Error updating user balance:', error.message);
       throw new Error('Failed to update user balance');
     }
   }
-  
+
+  // async updateUserBalance(userId, newBalance) {
+  //   try {
+  //     // console.log('Searching for user with ID:', userId);
+  //     // console.log('new Balance:', newBalance);
+
+  //     const updatedUser = await this.collection.findOneAndUpdate(
+  //       { userid: userId },
+  //       { $set: { 'wallet.balance': newBalance } },
+  //       { returnDocument: 'after' }
+  //     );
+
+  //     if (!updatedUser) {
+  //       console.error(`User with ID ${userId} not found`);
+  //       throw new Error('User not found');
+  //     }
+
+  //     return updatedUser;
+  //   } catch (error) {
+  //     console.error('Error updating user balance:', error.message);
+  //     throw new Error('Failed to update user balance');
+  //   }
+  // }
+
 }
 
 module.exports = UserService;
