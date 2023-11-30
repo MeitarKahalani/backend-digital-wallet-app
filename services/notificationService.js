@@ -14,11 +14,12 @@ class NotificationService extends EventEmitter {
         // Simulate sending notification asynchronously
         if (retryCount < retries) {
           console.log(`Retrying notification to user ${userId}, attempt ${retryCount + 1}`);
-          this.emit('notification', { userId, message });
           retryCount++;
           send();
         } else {
-          console.log(`Notification failed after ${retries} attempts for user ${userId}`);
+          console.log(`Notification successfully sent to user ${userId}`);
+          // Emit a success event or perform other actions
+          this.emit('notificationSent', { userId, message });
         }
       }, delay);
     };

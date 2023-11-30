@@ -24,15 +24,28 @@ router.post('', async (req, res) => {
     }
 });
 
-router.patch('/transactions/:transactionId', async (req, res) => {
+router.patch('/transactions/:transactionId/decision', async (req, res) => {
     try {
         const { transactionId } = req.params;
-        await transactionService.processTransaction(transactionId);
-        res.json({ message: 'Transaction processed successfully' });
+        const { receiverDecision } = req.body;
+
+        await transactionService.processTransaction(transactionId, receiverDecision);
+        res.json({ message: 'Transaction decision processed successfully' });
     } catch (error) {
-        console.error('Error in processing transaction:', error.message);
-        res.status(500).json({ error: 'Failed to process transaction' });
+        console.error('Error processing transaction decision:', error.message);
+        res.status(500).json({ error: 'Failed to process transaction decision' });
     }
 });
+
+// router.patch('/transactions/:transactionId', async (req, res) => {
+//     try {
+//         const { transactionId } = req.params;
+//         await transactionService.processTransaction(transactionId);
+//         res.json({ message: 'Transaction processed successfully' });
+//     } catch (error) {
+//         console.error('Error in processing transaction:', error.message);
+//         res.status(500).json({ error: 'Failed to process transaction' });
+//     }
+// });
 
 module.exports = router;
