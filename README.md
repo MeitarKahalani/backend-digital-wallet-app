@@ -21,7 +21,7 @@ The system consists of three main components:
 
 ### Installation
 
-1. Clone the repository: `git clone https://github.com/your-repo-url.git`
+1. Clone the repository: `git clone https://github.com/MeitarKahalani/backend-digital-wallet-app.git` 
 2. Install dependencies: `npm install`
 3. Set up MongoDB and configure connection details in the services.
 
