@@ -34,7 +34,7 @@ class UserService {
         createdAt: currentTime.toLocaleString(),
         updatedAt: currentTime.toLocaleString(),
         transactions: [], // Initializing transactions array for the new user
-        notifications: []// Initializing notifications array for the new user
+        groups: []// Initializing groups array for the new user
       };
 
       // Insert the new user document into the collection
