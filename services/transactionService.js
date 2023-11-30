@@ -70,9 +70,6 @@ class TransactionService {
         if (receiverDecision === 'accept') {
           // Updates transaction status to 'completed' if receiver accepts
           updateStatus = 'completed';
-          // Notifies sender and receiver about the transaction completion
-          this.notificationService.sendNotification(transaction.senderId, 'Receiver accepted the transaction.');
-          this.notificationService.sendNotification(receiverId, `You've received ${amount} dollars.`);
         } else if (receiverDecision === 'deny') {
           // Updates transaction status to 'rejected' if receiver denies
           updateStatus = 'rejected';
@@ -93,9 +90,9 @@ class TransactionService {
           const { senderId, receiverId, amount } = transaction;
           // Updating sender and receiver balances
           await this.updateSenderAndReceiverBalances(senderId, receiverId, amount, transactionIdAsObject);
-          // Notifies sender and receiver about the completion of the transaction
-          this.notificationService.sendNotification(senderId, 'Transaction completed successfully.');
-          this.notificationService.sendNotification(receiverId, 'Transaction completed successfully.');
+          // Notifies sender and receiver about the transaction completion
+          this.notificationService.sendNotification(transaction.senderId, 'Receiver accepted the transaction.');
+          this.notificationService.sendNotification(transaction.receiverId, `You've received ${transaction.amount} dollars.`);
         }
       } else {
         throw new Error('Transaction is already processed');
