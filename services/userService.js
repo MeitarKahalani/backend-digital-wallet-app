@@ -41,6 +41,7 @@ class UserService {
       const newUserUpdate = await this.collection.insertOne(newUser);
       // Fetch and return the newly created user
       const user = await this.getUserById(newUserUpdate.insertedId);
+      console.log(newUserUpdate);
       return user;
 
     } catch (error) {
